@@ -20,13 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package eisconfigmgr
+package eiiconfigmgr
 
 import "unsafe"
 
-// SubscriberCfg context
-type SubscriberCfg struct {
-	subCfg unsafe.Pointer
+// PublisherCfg context
+type PublisherCfg struct {
+	pubCfg unsafe.Pointer
 }
 
 // GetEndPoints for application to fetch Endpoint associated with message bus config
@@ -36,36 +36,52 @@ type SubscriberCfg struct {
 //    Endpoints value in string
 // 2. error
 //    Error on failure,  nil on success
-func (subctx *SubscriberCfg) GetEndPoints() (string, error) {
-	endPoint, err := subctx.getEndPoints()
+func (pubctx *PublisherCfg) GetEndPoints() (string, error) {
+	endPoint, err := pubctx.getEndPoints()
 	if err != nil {
 		return "", err
 	}
 	return endPoint, nil
 }
 
-// GetTopics gets topics from subscriber interface config on which subscriber receives data
+// GetTopics gets topics from publisher interface config on which data will be published
+//
 // Returns:
 // 1. topics : string array
 //    array of topics
 // 2. error
 //    Error on failure,  nil on success
-func (subctx *SubscriberCfg) GetTopics() ([]string, error) {
-	topics, err := subctx.getTopics()
+func (pubctx *PublisherCfg) GetTopics() ([]string, error) {
+	topics, err := pubctx.getTopics()
 	if err != nil {
 		return []string{""}, err
 	}
 	return topics, nil
 }
 
-// GetMsgbusConfig to fetch client msgbus config for application to communicate over EIS message bus
+// GetAllowedClients gets the names of the clients allowed to get publishers data
+//
+// Returns:
+// 1. allowed_clients : string array
+//    array of allowed clients
+// 2. error
+//    Error on failure,  nil on success
+func (pubctx *PublisherCfg) GetAllowedClients() ([]string, error) {
+	allowedClients, err := pubctx.getAllowedClients()
+	if err != nil {
+		return []string{""}, err
+	}
+	return allowedClients, nil
+}
+
+// GetMsgbusConfig to fetch client msgbus config for application to communicate over EII message bus
 //
 // Returns:
 // 1. map[string]interface{}
 // 2. error
 //    Error on failure,  nil on success
-func (subctx *SubscriberCfg) GetMsgbusConfig() (map[string]interface{}, error) {
-	conf, err := subctx.getMsgbusConfig()
+func (pubctx *PublisherCfg) GetMsgbusConfig() (map[string]interface{}, error) {
+	conf, err := pubctx.getMsgbusConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -73,10 +89,11 @@ func (subctx *SubscriberCfg) GetMsgbusConfig() (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return config, nil
 }
 
-// SetTopics sets new topic for subscriber in subscribers interface config
+// SetTopics sets new topic for publisher in publishers interface config
 // Parameters:
 // 1. topics : string array
 //    array of topics that needs to be set
@@ -84,11 +101,11 @@ func (subctx *SubscriberCfg) GetMsgbusConfig() (map[string]interface{}, error) {
 // Returns:
 // 1. bool value : bool
 //    true if success, false on failure
-func (subctx *SubscriberCfg) SetTopics(topics []string) bool {
-	return subctx.setTopics(topics)
+func (pubctx *PublisherCfg) SetTopics(topics []string) bool {
+	return pubctx.setTopics(topics)
 }
 
-// GetInterfaceValue fetch interface value for application to communicate over EIS message bus
+// GetInterfaceValue fetch interface value for application to communicate over EII message bus
 //
 // Parameters:
 // 1. key: string
@@ -99,15 +116,15 @@ func (subctx *SubscriberCfg) SetTopics(topics []string) bool {
 //    Interface value
 // 2. error
 //    Error on failure,  nil on success
-func (subctx *SubscriberCfg) GetInterfaceValue(key string) (*ConfigValue, error) {
-	interfaceVal, err := subctx.getInterfaceValue(key)
+func (pubctx *PublisherCfg) GetInterfaceValue(key string) (*ConfigValue, error) {
+	interfaceVal, err := pubctx.getInterfaceValue(key)
 	if err != nil {
 		return nil, err
 	}
 	return interfaceVal, nil
 }
 
-// To delete Subscriber context
-func (subctx *SubscriberCfg) Destroy() {
-	subctx.destroySubscriber()
+// To delete Publisher context
+func (pubctx *PublisherCfg) Destroy() {
+	pubctx.destroyPublisher()
 }

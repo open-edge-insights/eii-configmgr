@@ -20,13 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package eisconfigmgr
+package eiiconfigmgr
 
 import "unsafe"
 
-// ServerCfg context
-type ServerCfg struct {
-	serverCfg unsafe.Pointer
+// SubscriberCfg context
+type SubscriberCfg struct {
+	subCfg unsafe.Pointer
 }
 
 // GetEndPoints for application to fetch Endpoint associated with message bus config
@@ -36,37 +36,36 @@ type ServerCfg struct {
 //    Endpoints value in string
 // 2. error
 //    Error on failure,  nil on success
-func (serverctx *ServerCfg) GetEndPoints() (string, error) {
-	endPoint, err := serverctx.getEndPoints()
+func (subctx *SubscriberCfg) GetEndPoints() (string, error) {
+	endPoint, err := subctx.getEndPoints()
 	if err != nil {
 		return "", err
 	}
 	return endPoint, nil
 }
 
-// GetAllowedClients gets the names of the clients allowed to connect to server
-//
+// GetTopics gets topics from subscriber interface config on which subscriber receives data
 // Returns:
-// 1. allowed_clients : string array
-//    array of allowed clients
+// 1. topics : string array
+//    array of topics
 // 2. error
 //    Error on failure,  nil on success
-func (serverctx *ServerCfg) GetAllowedClients() ([]string, error) {
-	allowedClients, err := serverctx.getAllowedClients()
+func (subctx *SubscriberCfg) GetTopics() ([]string, error) {
+	topics, err := subctx.getTopics()
 	if err != nil {
 		return []string{""}, err
 	}
-	return allowedClients, nil
+	return topics, nil
 }
 
-// GetMsgbusConfig to fetch client msgbus config for application to communicate over EIS message bus
+// GetMsgbusConfig to fetch client msgbus config for application to communicate over EII message bus
 //
 // Returns:
 // 1. map[string]interface{}
 // 2. error
 //    Error on failure,  nil on success
-func (serverctx *ServerCfg) GetMsgbusConfig() (map[string]interface{}, error) {
-	conf, err := serverctx.getMsgbusConfig()
+func (subctx *SubscriberCfg) GetMsgbusConfig() (map[string]interface{}, error) {
+	conf, err := subctx.getMsgbusConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +76,19 @@ func (serverctx *ServerCfg) GetMsgbusConfig() (map[string]interface{}, error) {
 	return config, nil
 }
 
-// GetInterfaceValue fetch interface value for application to communicate over EIS message bus
+// SetTopics sets new topic for subscriber in subscribers interface config
+// Parameters:
+// 1. topics : string array
+//    array of topics that needs to be set
+//
+// Returns:
+// 1. bool value : bool
+//    true if success, false on failure
+func (subctx *SubscriberCfg) SetTopics(topics []string) bool {
+	return subctx.setTopics(topics)
+}
+
+// GetInterfaceValue fetch interface value for application to communicate over EII message bus
 //
 // Parameters:
 // 1. key: string
@@ -88,15 +99,15 @@ func (serverctx *ServerCfg) GetMsgbusConfig() (map[string]interface{}, error) {
 //    Interface value
 // 2. error
 //    Error on failure,  nil on success
-func (serverctx *ServerCfg) GetInterfaceValue(key string) (*ConfigValue, error) {
-	interfaceVal, err := serverctx.getInterfaceValue(key)
+func (subctx *SubscriberCfg) GetInterfaceValue(key string) (*ConfigValue, error) {
+	interfaceVal, err := subctx.getInterfaceValue(key)
 	if err != nil {
 		return nil, err
 	}
 	return interfaceVal, nil
 }
 
-// To delete server context
-func (serverctx *ServerCfg) Destroy() {
-	serverctx.destroyServer()
+// To delete Subscriber context
+func (subctx *SubscriberCfg) Destroy() {
+	subctx.destroySubscriber()
 }

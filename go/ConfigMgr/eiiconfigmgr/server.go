@@ -20,13 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package eisconfigmgr
+package eiiconfigmgr
 
 import "unsafe"
 
-// PublisherCfg context
-type PublisherCfg struct {
-	pubCfg unsafe.Pointer
+// ServerCfg context
+type ServerCfg struct {
+	serverCfg unsafe.Pointer
 }
 
 // GetEndPoints for application to fetch Endpoint associated with message bus config
@@ -36,52 +36,37 @@ type PublisherCfg struct {
 //    Endpoints value in string
 // 2. error
 //    Error on failure,  nil on success
-func (pubctx *PublisherCfg) GetEndPoints() (string, error) {
-	endPoint, err := pubctx.getEndPoints()
+func (serverctx *ServerCfg) GetEndPoints() (string, error) {
+	endPoint, err := serverctx.getEndPoints()
 	if err != nil {
 		return "", err
 	}
 	return endPoint, nil
 }
 
-// GetTopics gets topics from publisher interface config on which data will be published
-//
-// Returns:
-// 1. topics : string array
-//    array of topics
-// 2. error
-//    Error on failure,  nil on success
-func (pubctx *PublisherCfg) GetTopics() ([]string, error) {
-	topics, err := pubctx.getTopics()
-	if err != nil {
-		return []string{""}, err
-	}
-	return topics, nil
-}
-
-// GetAllowedClients gets the names of the clients allowed to get publishers data
+// GetAllowedClients gets the names of the clients allowed to connect to server
 //
 // Returns:
 // 1. allowed_clients : string array
 //    array of allowed clients
 // 2. error
 //    Error on failure,  nil on success
-func (pubctx *PublisherCfg) GetAllowedClients() ([]string, error) {
-	allowedClients, err := pubctx.getAllowedClients()
+func (serverctx *ServerCfg) GetAllowedClients() ([]string, error) {
+	allowedClients, err := serverctx.getAllowedClients()
 	if err != nil {
 		return []string{""}, err
 	}
 	return allowedClients, nil
 }
 
-// GetMsgbusConfig to fetch client msgbus config for application to communicate over EIS message bus
+// GetMsgbusConfig to fetch client msgbus config for application to communicate over EII message bus
 //
 // Returns:
 // 1. map[string]interface{}
 // 2. error
 //    Error on failure,  nil on success
-func (pubctx *PublisherCfg) GetMsgbusConfig() (map[string]interface{}, error) {
-	conf, err := pubctx.getMsgbusConfig()
+func (serverctx *ServerCfg) GetMsgbusConfig() (map[string]interface{}, error) {
+	conf, err := serverctx.getMsgbusConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -89,23 +74,10 @@ func (pubctx *PublisherCfg) GetMsgbusConfig() (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return config, nil
 }
 
-// SetTopics sets new topic for publisher in publishers interface config
-// Parameters:
-// 1. topics : string array
-//    array of topics that needs to be set
-//
-// Returns:
-// 1. bool value : bool
-//    true if success, false on failure
-func (pubctx *PublisherCfg) SetTopics(topics []string) bool {
-	return pubctx.setTopics(topics)
-}
-
-// GetInterfaceValue fetch interface value for application to communicate over EIS message bus
+// GetInterfaceValue fetch interface value for application to communicate over EII message bus
 //
 // Parameters:
 // 1. key: string
@@ -116,15 +88,15 @@ func (pubctx *PublisherCfg) SetTopics(topics []string) bool {
 //    Interface value
 // 2. error
 //    Error on failure,  nil on success
-func (pubctx *PublisherCfg) GetInterfaceValue(key string) (*ConfigValue, error) {
-	interfaceVal, err := pubctx.getInterfaceValue(key)
+func (serverctx *ServerCfg) GetInterfaceValue(key string) (*ConfigValue, error) {
+	interfaceVal, err := serverctx.getInterfaceValue(key)
 	if err != nil {
 		return nil, err
 	}
 	return interfaceVal, nil
 }
 
-// To delete Publisher context
-func (pubctx *PublisherCfg) Destroy() {
-	pubctx.destroyPublisher()
+// To delete server context
+func (serverctx *ServerCfg) Destroy() {
+	serverctx.destroyServer()
 }

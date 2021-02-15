@@ -27,12 +27,12 @@
 #include <stdlib.h>
 #include <cjson/cJSON.h>
 #include <safe_lib.h>
-#include <eis/utils/logger.h>
-#include <eis/utils/string.h>
+#include <eii/utils/logger.h>
+#include <eii/utils/string.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include "eis/utils/json_config.h"
-#include "eis/config_manager/kv_store_plugin/kv_store_plugin.h"
+#include "eii/utils/json_config.h"
+#include "eii/config_manager/kv_store_plugin/kv_store_plugin.h"
 #define BROKERED "brokered"
 #define SOCKET_FILE "socket_file"
 #define ENDPOINT "EndPoint"
@@ -44,8 +44,8 @@
 
 #define MAX_CONFIG_KEY_LENGTH 250
 
-#ifndef _EIS_C_BASE_CFG_H
-#define _EIS_C_BASE_CFG_H
+#ifndef _EII_C_BASE_CFG_H
+#define _EII_C_BASE_CFG_H
 
 #ifdef __cplusplus
 extern "C" {

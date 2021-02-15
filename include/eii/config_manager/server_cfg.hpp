@@ -24,84 +24,77 @@
  * @brief ConfigMgr interface
  */
 
-#ifndef _EIS_CH_SUBSCRIBER_CFG_H
-#define _EIS_CH_SUBSCRIBER_CFG_H
+#ifndef _EII_CH_SERVER_CFG_H
+#define _EII_CH_SERVER_CFG_H
 
 #include <string.h>
 #include <cjson/cJSON.h>
 #include <iostream>
 #include <safe_lib.h>
-#include <eis/utils/logger.h>
-#include "eis/utils/json_config.h"
-#include "eis/config_manager/kv_store_plugin/kv_store_plugin.h"
-#include "eis/config_manager/app_cfg.hpp"
-#include "eis/config_manager/cfgmgr.h"
+#include <eii/utils/logger.h>
+#include "eii/utils/json_config.h"
+#include "eii/config_manager/kv_store_plugin/kv_store_plugin.h"
+#include "eii/config_manager/app_cfg.hpp"
+#include "eii/config_manager/cfgmgr.h"
 
-namespace eis {
+
+namespace eii {
     namespace config_manager {
 
-        class SubscriberCfg : public AppCfg {
+        class ServerCfg : public AppCfg {
             private:
 
                 // cfgmgr_interface_t object
                 cfgmgr_interface_t* m_cfgmgr_interface;
             public:
                 /**
-                * SubscriberCfg Constructor
+                * ServerCfg Constructor
                 * This constructor is not to be directly called since it is only used
                 * internally by the ConfigMgr
-                * @param cfgmgr_interface - The interface associated with a subscriber
+                * @param cfgmgr_interface - The interface associated with a server
                 */
-                explicit SubscriberCfg(cfgmgr_interface_t* cfgmgr_interface);
+                explicit ServerCfg(cfgmgr_interface_t* cfgmgr_interface);
 
                 /**
-                 * Constructs message bus config for Subscriber
-                 * @return config_t* - On Success, JSON msg bus subscriber config of type config_t
-                 *                   - On failure, On success, returns NULL
+                 * Constructs message bus config for Server
+                 * @return config_t* - On Success, JSON msg bus server config of type config_t
+                 *                   - On Failure, returns NULL
                  */
                 config_t* getMsgBusConfig() override;
 
                 /**
-                 * To get particular interface value from Subscriber interface config
+                 * To get particular interface value from Server interface config
                  * @param key - Key on which interface value is extracted.
-                 * @return config_value_t* - On success, returns config_value_t object
-                 *                           On failure, On success, returns NULL
+                 * @return config_value_t* - On Success, config_value_t object
+                 *                         - On Failure, returns NULL
                  */
                 config_value_t* getInterfaceValue(const char* key) override;
 
                 /**
-                 * To get endpoint for particular subscriber from its interface config
-                 * @return std::string - On Success, returns Endpoint of server config
-                 *                     - On Failure, returns empty string
+                 * To get endpoint for particular server from its interface config
+                 * @return std::string - On Success returns Endpoint of server config
+                 *                     - On Failure returns empty string
                  */
                 std::string getEndpoint() override;
 
                 /**
-                 * To gets topics from subscriber interface config on which subscriber receives data
-                 * @return vector<string> - On Success, returns Topics of subscriber config
+                 * To get the names of the clients allowed to connect to server
+                 * @return vector<string> - On Success, returns Allowed client of server config
                  *                        - On Failure, returns empty vector
                  */
-                std::vector<std::string> getTopics() override;
+                std::vector<std::string> getAllowedClients() override;
 
                 /**
-                 * To sets new topics for subscriber in subscribers interface config
-                 * @param topics_list - List of topics to be set
-                 * @return bool - Boolean whether topics were set
-                 */
-                bool setTopics(std::vector<std::string> topics_list) override;
-
-                /**
-                * cfgmgr_interface_t getter to get subscriber interface
+                * cfgmgr_interface_t getter to get server interface
                 */
-                cfgmgr_interface_t* getSubCfg();
+                cfgmgr_interface_t* getServCfg();
 
                 /**
                 * Destructor
                 */
-                ~SubscriberCfg();
+                ~ServerCfg();
 
         };
-
     }
 }
 #endif

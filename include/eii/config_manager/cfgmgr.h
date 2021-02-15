@@ -24,8 +24,8 @@
  */
 
 #include <ctype.h>
-#include "eis/config_manager/kv_store_plugin/kv_store_plugin.h"
-#include "eis/config_manager/cfgmgr_util.h"
+#include "eii/config_manager/kv_store_plugin/kv_store_plugin.h"
+#include "eii/config_manager/cfgmgr_util.h"
 
 #define PUBLISHERS "Publishers"
 #define SUBSCRIBERS "Subscribers"
@@ -45,8 +45,8 @@
 #define PUBLISHER_APPNAME "PublisherAppName"
 #define SERVER_APPNAME "ServerAppName"
 
-#ifndef _EIS_C_CONFIG_MGR_H
-#define _EIS_C_CONFIG_MGR_H
+#ifndef _EII_C_CONFIG_MGR_H
+#define _EII_C_CONFIG_MGR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -168,7 +168,7 @@ config_value_t* cfgmgr_get_endpoint(cfgmgr_interface_t* ctx);
  * 
  * Returns the value mapped to Topics key in the Applications Interface.
  * If "*" is mentioned in topics, then it is replaced by empty string ,
- * as our EISMessageBus supports the prefix approach, empty prefix considers all/any the topics.
+ * as our EIIMessageBus supports the prefix approach, empty prefix considers all/any the topics.
  * 
  * @param ctx - cfgmgr_interface_t object
  *  @return NULL for any errors occured or config_value_t* on success

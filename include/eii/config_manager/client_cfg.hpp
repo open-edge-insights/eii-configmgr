@@ -24,20 +24,20 @@
  * @brief ConfigMgr interface
  */
 
-#ifndef _EIS_CH_CLIENT_CFG_H
-#define _EIS_CH_CLIENT_CFG_H
+#ifndef _EII_CH_CLIENT_CFG_H
+#define _EII_CH_CLIENT_CFG_H
 
 #include <string.h>
 #include <cjson/cJSON.h>
 #include <iostream>
 #include <safe_lib.h>
-#include <eis/utils/logger.h>
-#include "eis/utils/json_config.h"
-#include "eis/config_manager/kv_store_plugin/kv_store_plugin.h"
-#include "eis/config_manager/app_cfg.hpp"
-#include "eis/config_manager/cfgmgr.h"
+#include <eii/utils/logger.h>
+#include "eii/utils/json_config.h"
+#include "eii/config_manager/kv_store_plugin/kv_store_plugin.h"
+#include "eii/config_manager/app_cfg.hpp"
+#include "eii/config_manager/cfgmgr.h"
 
-namespace eis {
+namespace eii {
     namespace config_manager {
 
         class ClientCfg: public AppCfg {
