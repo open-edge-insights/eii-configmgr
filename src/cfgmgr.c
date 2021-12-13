@@ -200,19 +200,19 @@ config_t* create_kv_store_config() {
         }
     } else {
         ret = snprintf(pub_cert_file, MAX_CONFIG_KEY_LENGTH,
-                 "/run/secrets/etcd_%s_cert", c_app_name);
+                 "/run/secrets/%s/%s_client_certificate.pem", c_app_name, c_app_name);
         if (ret < 0) {
             LOG_ERROR_0("failed to create pub_cert_file");
             goto err;
         }
         ret = snprintf(pri_key_file, MAX_CONFIG_KEY_LENGTH,
-                 "/run/secrets/etcd_%s_key", c_app_name);
+                 "/run/secrets/%s/%s_client_key.pem", c_app_name, c_app_name);
         if (ret < 0) {
             LOG_ERROR_0("failed to create pri_key_file");
             goto err;
         }
         ret = strncpy_s(trust_file, MAX_CONFIG_KEY_LENGTH + 1,
-                  "/run/secrets/ca_etcd", MAX_CONFIG_KEY_LENGTH);
+                  "/run/secrets/rootca/cacert.pem", MAX_CONFIG_KEY_LENGTH);
         if (ret != 0) {
             LOG_ERROR_0("failed to create trust file");
             goto err;
