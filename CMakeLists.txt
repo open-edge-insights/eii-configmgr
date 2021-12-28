@@ -99,6 +99,8 @@ include_directories(
     ${EIIUtils_INCLUDE}
     ${IntelSafeString_INCLUDE})
 
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
+
 # Get all source files
 file(GLOB SOURCES "src/*.c" "cpp/*.cpp" "src/*/*.c" "src/*/etcd_client/*.c" "src/*/etcd_client/*.cpp" "src/*/etcd_client/*/*.cpp")
 set_source_files_properties(${SOURCES} PROPERTIES LANGUAGE C)

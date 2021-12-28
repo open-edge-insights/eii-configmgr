@@ -656,6 +656,8 @@ Please refer [Examples installation](###-install-configMgr-with-examples,-test-s
 
 Refer the interfaces of publisher and server in [./examples/configs/VideoIngestion_interfaces.json](./examples/configs/VideoIngestion_interfaces.json) and for subscriber and client, refer [./examples/configs/VideoAnalytics_interfaces.json](./examples/configs/VideoAnalytics_interfaces.json)
 
+**Note** : In the above json files, if the message communication type is `zmq_ipc`, user needs to make sure the socket directory is present in the host machine.
+
 Examples on demonstrating the usage of these APIs in the bindings have been given in respective sections below.
 
 - [CPP Examples](###-cpp-examples)
