@@ -33,6 +33,8 @@ option(WITH_GO       "Compile Go Bindings" OFF)
 option(WITH_PYTHON   "Compile with Python bindings" OFF)
 option(WITH_TESTS    "Compile with tests" OFF)
 option(SYSTEM_GRPC   "Use the system installed gRPC" OFF)
+option(WITH_DOCS     "Generate ConfigMgr documentation" OFF)
+
 
 # Verify that packaging is off if SYSTEM_GRPC is turned on
 # This is not supported due to complications with linking, the target system the
@@ -41,6 +43,7 @@ option(SYSTEM_GRPC   "Use the system installed gRPC" OFF)
 if(PACKAGING AND SYSTEM_GRPC)
     message(FATAL_ERROR "Packaging cannot be done when using the system's gRPC version")
 endif()
+
 
 # Globals
 set(EII_COMMON_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
@@ -135,6 +138,62 @@ endif()
 
 if(WITH_TESTS)
     add_subdirectory(tests/)
+endif()
+
+##
+## Documentation generation
+##
+if(WITH_DOCS)
+    message("-- Configuring documentation generation")
+
+    set(DOCS_DIR "${CMAKE_CURRENT_BINARY_DIR}/docs")
+    set(PDFS_DIR "${DOCS_DIR}/pdfs")
+
+    # Create doxygen directory
+    file(MAKE_DIRECTORY ${DOCS_DIR})
+    file(MAKE_DIRECTORY ${PDFS_DIR})
+
+    # Doxygen documentation generation
+    message("       Configuring C/C++ API documentation")
+    find_package(Doxygen REQUIRED)
+    find_program(PDFLATEX NAMES pdflatex)
+
+    # Make C documentation directory
+    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/docs/c")
+
+    set(DOXYFILE_IN  "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
+    set(DOXYFILE_OUT "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
+
+    configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
+
+    # Add target for generating doxygen documentation
+    add_custom_target(doxygen-docs
+        COMMENT "Generating C/C++ API Doxygen documentation"
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM)
+
+    # Add target for generating PDF of C/C++ doxygen documentation
+    add_custom_target(doxygen-docs-pdf
+        COMMENT "Generating C/C++ API PDF"
+        DEPENDS doxygen-docs
+        COMMAND ${CMAKE_COMMAND} -E remove "${PDFS_DIR}/EII_ConfigMgr_C_Reference_${PROJECT_VERSION}.pdf"
+        COMMAND ${PDFLATEX}
+            -interaction=nonstopmode
+            -output-directory ${PDFS_DIR}
+            -jobname=EII_ConfigMgr_C_Reference_${PROJECT_VERSION}
+            refman.tex
+        WORKING_DIRECTORY ${DOCS_DIR}/c/latex/
+        VERBATIM)
+
+    # List of docs dependency targets
+    set(DOCS_TARGETS doxygen-docs doxygen-docs-pdf)
+
+    # Final target for compiling all EII ConfigMgr documentation with make docs
+    add_custom_target(docs
+        COMMENT "Generating EII ConfigMgr documentation"
+        DEPENDS ${DOCS_TARGETS}
+        VERBATIM)
 endif()
 
 # Include CMake script for defining the installation targets of
