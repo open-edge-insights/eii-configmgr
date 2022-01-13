@@ -90,7 +90,29 @@ the Python requirements. To do this, execute the following `pip` command:
 pip3 install --user -r ./python/requirements.txt
 ```
 
+### Using System gRPC
+
+The ConfigMgr library can be built using the gRPC version already installed on
+the system. To do this, use the `SYSTEM_GRPC` flag when running the `cmake`
+command. Below is an example of what this would look like:
+
+```sh
+$ cmake -DSYSTEM_GRPC=ON ..
+```
+
+Note that the ConfigMgr library depends on a specific gRPC version, 1.29.0. A
+debian package is provided for this in the grpc-package directory. To install
+this in Ubuntu run the following command:
+
+```sh
+$ sudo dpkg -i grpc-package/grpc-1.29.0-Linux.deb
+```
+
 ## Packaging
+
+> **NOTE:** If the build is done using the system installed gRPC, then packaging
+> cannot be done . This is due to the various linking issues that can occur in
+> that scenario.
 
 This library supports being packaged as a Debian, RPM, or Alpine APK packages.
 This is all accomplished via CMake. By default, packaging is disabled. To

@@ -32,6 +32,15 @@ option(WITH_EXAMPLES "Compile with examples" OFF)
 option(WITH_GO       "Compile Go Bindings" OFF)
 option(WITH_PYTHON   "Compile with Python bindings" OFF)
 option(WITH_TESTS    "Compile with tests" OFF)
+option(SYSTEM_GRPC   "Use the system installed gRPC" OFF)
+
+# Verify that packaging is off if SYSTEM_GRPC is turned on
+# This is not supported due to complications with linking, the target system the
+# package would be installed on cannot be assumed to be structured the same as
+# the system the library is built on.
+if(PACKAGING AND SYSTEM_GRPC)
+    message(FATAL_ERROR "Packaging cannot be done when using the system's gRPC version")
+endif()
 
 # Globals
 set(EII_COMMON_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
@@ -53,22 +62,6 @@ find_package(Threads REQUIRED)
 find_package(EIIUtils REQUIRED)
 find_package(EIIMsgEnv REQUIRED)
 find_package(IntelSafeString REQUIRED)
-
-# Set gRPC_INSTALL to ON so that the gRPC targets get installed with the
-# EII Config Manager targets.
-set(gRPC_INSTALL ON CACHE BOOL "" FORCE)
-set(gRPC_ZLIB_PROVIDER "package" CACHE STRING "" FORCE)
-
-# Fetch GRPC dependency
-include(FetchContent)
-set(GRPC_VERSION "v1.29.0")
-FetchContent_Declare(
-    gRPC
-    GIT_REPOSITORY https://github.com/grpc/grpc
-    GIT_TAG        ${GRPC_VERSION}
-)
-set(FETCHCONTENT_QUIET OFF)
-FetchContent_MakeAvailable(gRPC)
 
 # Install Go EnvConfig if specified to
 if(WITH_GO)
@@ -93,8 +86,6 @@ endif()
 include_directories(
     ${CMAKE_INSTALL_PREFIX}/include/
     include/
-    ${GRPC_INCLUDE_DIRS}
-    ${PROTOBUF_INCLUDE_DIRS}
     ${EIIMsgEnv_INCLUDE}
     ${EIIUtils_INCLUDE}
     ${IntelSafeString_INCLUDE})
@@ -108,13 +99,14 @@ set_source_files_properties(${SOURCES} PROPERTIES LANGUAGE C)
 add_library(eiiconfigmanager_static STATIC ${SOURCES})
 add_library(eiiconfigmanager SHARED ${SOURCES})
 
+# Link gRPC to the library
+include(cmake/LinkGRPC.cmake)
+
 target_link_libraries(eiiconfigmanager
     PUBLIC
         pthread
     PRIVATE
-        grpc++
         cjson
-        ${PROTOBUF_LIBRARIES}
         ${EIIMsgEnv_LIBRARIES}
         ${EIIUtils_LIBRARIES}
         ${IntelSafeString_LIBRARIES})
@@ -123,9 +115,7 @@ target_link_libraries(eiiconfigmanager_static
     PUBLIC
         pthread
     PRIVATE
-        grpc++
         cjson
-        ${PROTOBUF_LIBRARIES}
         ${EIIMsgEnv_LIBRARIES}
         ${EIIUtils_LIBRARIES}
         ${IntelSafeString_LIBRARIES})
