@@ -902,3 +902,20 @@ sudo ./grpc_deb.sh
 
 By executing the above script, `grpc-1.29.0-Linux.deb` will be created in
 `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr`.
+
+## Generation of python .whl file (Optional)
+
+**Note**: This is an optional as we have already hosted .whl file.
+If user wants to create .whl file freshly, then one has to follow below steps.
+
+1. Installation of `wheel`
+
+    ```sh
+    pip3 install –upgrade setuptools wheel
+    ```
+
+2. Navigate to `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/python` and execute the below command
+    ```sh
+    python3 setup_packaging.py sdist bdist_wheel --plat-name=manylinux2014_x86_64
+    ```
+3. ConfigMgr .whl package will be created in the folder `dist` as `eii_configmgr-2.6-cp38-cp38-manylinux2014_x86_64.whl`
