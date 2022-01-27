@@ -776,6 +776,11 @@ config_t* cfgmgr_get_msgbus_config_pub(cfgmgr_interface_t* ctx) {
     config_value_t* zmq_tcp_publish = NULL;
     char* config_value_cr = NULL;
     bool config_set_result = false;
+    config_value_t* type_value = NULL;
+    config_value_t* zmq_tcp_publish_data = NULL;
+    config_value_t* zmq_tcp_publish_port = NULL;
+    config_value_t* zmq_tcp_publish_host = NULL;
+    config_value_t* zmq_tcp_publish_brokered = NULL;
     // Creating final config object
     m_config = json_config_new_from_buffer("{}");
     if (m_config == NULL) {
@@ -992,6 +997,7 @@ config_t* cfgmgr_get_msgbus_config_pub(cfgmgr_interface_t* ctx) {
             }
         }
         if (dev_mode != 0) {
+            LOG_DEBUG_0("Running in Prod Mode...");
             bool ret_val;
 
             // Checking if Publisher is using Broker to publish or not and constructing
@@ -1018,6 +1024,8 @@ config_t* cfgmgr_get_msgbus_config_pub(cfgmgr_interface_t* ctx) {
                     goto err;
                 }
             }
+        } else {
+            LOG_DEBUG_0("Running in Dev Mode...");
         }
         zmq_tcp_publish = config_value_new_object(zmq_tcp_publish_cvt->cfg, get_config_value, NULL);
         config_set_result = config_set(m_config, "zmq_tcp_publish", zmq_tcp_publish);
@@ -1029,15 +1037,103 @@ config_t* cfgmgr_get_msgbus_config_pub(cfgmgr_interface_t* ctx) {
         LOG_ERROR_0("Type should be either \"zmq_ipc\" or \"zmq_tcp\"");
         goto err;
     }
-    // Constructing char* object from config_t object
-    config_value_cr = configt_to_char(m_config);
-    if (config_value_cr == NULL) {
-        LOG_ERROR_0("config_value_cr initialization failed");
+
+    // Extracting and printing non-secret data from the config
+    type_value = m_config->get_config_value(m_config->cfg, "type");
+    if (type_value == NULL) {
+        LOG_ERROR_0("\"type\" key is missing in the config");
+        m_config = NULL;
+        goto err;
+    } else if (type_value->type != CVT_STRING) {
+        LOG_ERROR_0("\"type\" value has to be of string type");
+        m_config = NULL;
         goto err;
     }
-    LOG_DEBUG("Env publisher Config is : %s \n", config_value_cr);
+    if (!strcmp(type_value->body.string, "zmq_ipc")) {
+        config_value_cr = configt_to_char(m_config);
+        if (config_value_cr == NULL) {
+            LOG_ERROR_0("config_value_cr initialization failed");
+            m_config = NULL;
+            goto err;
+        }
+        LOG_DEBUG("Env publisher Config is : %s \n", config_value_cr);
+    } else {
+        uint8_t flag = 0;
+        char* brokered = "false";
+        zmq_tcp_publish_data = m_config->get_config_value(m_config->cfg,
+                                                          "zmq_tcp_publish");
+        if (zmq_tcp_publish_data == NULL) {
+            LOG_ERROR_0("\"zmq_tcp_publish\" key is missing in the config");
+            m_config = NULL;
+            goto err;
+        } else {
+            zmq_tcp_publish_host = config_value_object_get(zmq_tcp_publish_data,
+                                                                        "host");
+            if ( zmq_tcp_publish_host == NULL ) {
+                LOG_ERROR_0("zmq_tcp_publish \"host\" key missing");
+                m_config = NULL;
+                goto err;
+            }
+            if (zmq_tcp_publish_host->type != CVT_STRING) {
+                LOG_ERROR_0("zmq_tcp_publish \"host\" value has to be of string type");
+                m_config = NULL;
+                goto err;
+            }
+            zmq_tcp_publish_port = config_value_object_get(zmq_tcp_publish_data,
+                                                                        "port");
+            if ( zmq_tcp_publish_port == NULL ) {
+                LOG_ERROR_0("zmq_tcp_publish \"port\" key missing");
+                m_config = NULL;
+                goto err;
+            }
+            if (zmq_tcp_publish_port->type != CVT_INTEGER) {
+                LOG_ERROR_0("zmq_tcp_publish \"port\" value has to be of integer type");
+                m_config = NULL;
+                goto err;
+            }
+        }
+        if (brokered_value != NULL) {
+            zmq_tcp_publish_brokered = config_value_object_get(zmq_tcp_publish_data,
+                                                                        "brokered");
+            if ( zmq_tcp_publish_brokered == NULL ) {
+                LOG_ERROR_0("zmq_tcp_publish \"brokered\" key missing");
+                m_config = NULL;
+                goto err;
+            }
+
+            if (zmq_tcp_publish_brokered->type != CVT_BOOLEAN) {
+                LOG_ERROR_0("zmq_tcp_publish \"brokered\" value has to be of boolean type");
+                m_config = NULL;
+                goto err;
+            }
+            flag = zmq_tcp_publish_brokered->body.boolean;
+            if (flag) {
+                brokered = "true";
+            }
+        }
+        LOG_DEBUG("\nEnv publisher Config is : \n Type : %s \n Host : %s \n Port : %d \n brokered : %s\n", \
+                   type_value->body.string, \
+                   zmq_tcp_publish_host->body.string, \
+                   zmq_tcp_publish_port->body.integer, \
+                   brokered);
+    }
 
 err:
+    if (type_value != NULL) {
+        config_value_destroy(type_value);
+    }
+    if (zmq_tcp_publish_data != NULL) {
+        config_value_destroy(zmq_tcp_publish_data);
+    }
+    if (zmq_tcp_publish_port != NULL) {
+        config_value_destroy(zmq_tcp_publish_port);
+    }
+    if (zmq_tcp_publish_host != NULL) {
+        config_value_destroy(zmq_tcp_publish_host);
+    }
+    if (zmq_tcp_publish_brokered != NULL) {
+        config_value_destroy(zmq_tcp_publish_brokered);
+    }
     if (config_value_cr != NULL) {
         free(config_value_cr);
     }
@@ -1108,6 +1204,10 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
     config_value_t* type_cvt = NULL;
     config_value_t* zmq_tcp_host = NULL;
     config_value_t* zmq_tcp_port = NULL;
+    config_value_t* type_value = NULL;
+    config_value_t* topic_data = NULL;
+    config_value_t* zmq_tcp_subscriber_port = NULL;
+    config_value_t* zmq_tcp_subscriber_host = NULL;
 
     int devmode = ctx->cfg_mgr->dev_mode;
     if (devmode == 0) {
@@ -1341,8 +1441,9 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
             }
 
             // if topics lenght is not 1 or the topic is not equal to "*",
-            //then we are adding that topic for subscription.
+            // then we are adding that topic for subscription.
             if (!dev_mode) {
+                LOG_DEBUG_0("Running in Prod Mode...");
                 bool ret_val;
                 // This is ZmqBroker usecase, where in "PublisherAppname" will be specified as "*"
                 // hence comparing for "PublisherAppname" and "*"
@@ -1362,6 +1463,8 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
                         goto err;
                     }
                 }
+            } else {
+                LOG_DEBUG_0("Running in Dev Mode...");
             }
             config_value_t* topics_cvt = config_value_new_object(topics->cfg, get_config_value, NULL);
             if (topics_cvt == NULL) {
@@ -1381,24 +1484,87 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
                     goto err;
                 }
             }
-            if (topic != NULL) {
-                config_value_destroy(topic);
-            }
         }
     } else {
         LOG_ERROR_0("Type should be either \"zmq_ipc\" or \"zmq_tcp\"");
         goto err;
     }
 
-    // Constructing char* object from config_t object
-    config_value_cr = configt_to_char(c_json);
-    if (config_value_cr == NULL) {
-        LOG_ERROR_0("config_value_cr initialization failed");
+    // Extracting and printing non-secret data from the config
+    type_value = c_json->get_config_value(c_json->cfg, "type");
+    if (type_value == NULL) {
+        LOG_ERROR_0("\"type\" key is missing in the config");
+        c_json = NULL;
+        goto err;
+    } else if (type_value->type != CVT_STRING) {
+        LOG_ERROR_0("\"type\" value has to be of string type");
+        c_json = NULL;
         goto err;
     }
-    LOG_DEBUG("Env subscriber Config is : %s \n", config_value_cr);
+    if (!strcmp(type_value->body.string, "zmq_ipc")) {
+        config_value_cr = configt_to_char(c_json);
+        if (config_value_cr == NULL) {
+            LOG_ERROR_0("config_value_cr initialization failed");
+            c_json = NULL;
+            goto err;
+        }
+        LOG_DEBUG("Env Subscriber Config is : %s \n", config_value_cr);
+    } else {
+        topic_data = c_json->get_config_value(c_json->cfg, topic->body.string);
+        if (topic_data == NULL) {
+            LOG_ERROR("\"Topic\" key is missing in the config");
+            c_json = NULL;
+            goto err;
+        } else {
+            zmq_tcp_subscriber_host = config_value_object_get(topic_data,
+                                                                        "host");
+            if ( zmq_tcp_subscriber_host == NULL ) {
+                LOG_ERROR_0("Subscriber \"host\" key missing");
+                c_json = NULL;
+                goto err;
+            }
+            if (zmq_tcp_subscriber_host->type != CVT_STRING) {
+                LOG_ERROR_0("Subscriber \"host\" value has to be of string type");
+                c_json = NULL;
+                goto err;
+            }
+            zmq_tcp_subscriber_port = config_value_object_get(topic_data,
+                                                                        "port");
+            if ( zmq_tcp_subscriber_port == NULL ) {
+                LOG_ERROR_0("Subscriber \"port\" key missing");
+                c_json = NULL;
+                goto err;
+            }
+            if (zmq_tcp_subscriber_port->type != CVT_INTEGER) {
+                LOG_ERROR_0("Subscriber \"port\" value has to be of integer type");
+                c_json = NULL;
+                goto err;
+            }
+        }
+
+        LOG_DEBUG("\nEnv Subscriber Config is : \n Type : %s \n Topic : %s \n Host : %s \n Port : %d \n", \
+                   type_value->body.string, \
+                   topic->body.string, \
+                   zmq_tcp_subscriber_host->body.string, \
+                   zmq_tcp_subscriber_port->body.integer);
+    }
 
 err:
+    if (type_value != NULL) {
+        config_value_destroy(type_value);
+    }
+    if (topic_data != NULL) {
+        config_value_destroy(topic_data);
+    }
+    if (zmq_tcp_subscriber_port != NULL) {
+        config_value_destroy(zmq_tcp_subscriber_port);
+    }
+    if (zmq_tcp_subscriber_host != NULL) {
+        config_value_destroy(zmq_tcp_subscriber_host);
+    }
+    if (topic != NULL) {
+        config_value_destroy(topic);
+    }
     if (host_port != NULL) {
         free_mem(host_port);
     }
@@ -1472,6 +1638,10 @@ config_t* cfgmgr_get_msgbus_config_server(cfgmgr_interface_t* ctx) {
     config_value_t* all_clients_cvt = NULL;
     config_value_t* server_secret_key_cvt = NULL;
     config_value_t* server_topic_cvt = NULL;
+    config_value_t* type_value = NULL;
+    config_value_t* server_data = NULL;
+    config_value_t* zmq_tcp_server_port = NULL;
+    config_value_t* zmq_tcp_server_host = NULL;
 
     config_t* c_json = NULL;
     // Creating final config object
@@ -1540,7 +1710,6 @@ config_t* cfgmgr_get_msgbus_config_server(cfgmgr_interface_t* ctx) {
     // Note: This overrides all the server endpoints if set
     char* server_ep_env = getenv("SERVER_ENDPOINT");
     if (server_ep_env != NULL) {
-
         int ret = strncpy_s(server_ep, MAX_ENDPOINT_LENGTH + 1,
                         server_ep_env, MAX_ENDPOINT_LENGTH);
         if (ret != 0) {
@@ -1659,6 +1828,7 @@ config_t* cfgmgr_get_msgbus_config_server(cfgmgr_interface_t* ctx) {
         }
 
         if (dev_mode != 0) {
+            LOG_DEBUG_0("Running in Prod Mode...");
 
             // Fetching AllowedClients from config
             server_json_clients = config_value_object_get(serv_config, ALLOWED_CLIENTS);
@@ -1668,7 +1838,7 @@ config_t* cfgmgr_get_msgbus_config_server(cfgmgr_interface_t* ctx) {
             }
 
             // Checking if Allowed clients is empty string
-            if (config_value_array_len(server_json_clients) == 0){
+            if (config_value_array_len(server_json_clients) == 0) {
                 LOG_ERROR_0("Empty String is not supported in AllowedClients. Atleast one allowed clients is required");
                 goto err;
             }
@@ -1776,6 +1946,8 @@ config_t* cfgmgr_get_msgbus_config_server(cfgmgr_interface_t* ctx) {
                 goto err;
             }
 
+        } else {
+            LOG_DEBUG_0("Running in Dev Mode...");
         }
         // Creating the server_topic config_value_t object
         server_topic_cvt = config_value_new_object(server_topic->cfg, get_config_value, set_config_value);
@@ -1793,15 +1965,79 @@ config_t* cfgmgr_get_msgbus_config_server(cfgmgr_interface_t* ctx) {
         goto err;
     }
 
-    // Constructing char* object from object
-    config_value_cr = configt_to_char(c_json);
-    if (config_value_cr == NULL) {
-        LOG_ERROR_0("config_value_cr initialization failed");
+    // Extracting and printing non-secret data from the config
+    type_value = c_json->get_config_value(c_json->cfg, "type");
+    if (type_value == NULL) {
+        LOG_ERROR_0("\"type\" key is missing in the config");
+        c_json = NULL;
+        goto err;
+    } else if (type_value->type != CVT_STRING) {
+        LOG_ERROR_0("\"type\" value has to be of string type");
+        c_json = NULL;
         goto err;
     }
-    LOG_DEBUG("Env server Config is : %s \n", config_value_cr);
+    if (!strcmp(type_value->body.string, "zmq_ipc")) {
+        config_value_cr = configt_to_char(c_json);
+        if (config_value_cr == NULL) {
+            LOG_ERROR_0("config_value_cr initialization failed");
+            c_json = NULL;
+            goto err;
+        }
+        LOG_DEBUG("Env Server Config is : %s \n", config_value_cr);
+    } else {
+        server_data = c_json->get_config_value(c_json->cfg, server_name->body.string);
+        if (server_data == NULL) {
+            LOG_ERROR("\"name\" key is missing in the config");
+            c_json = NULL;
+            goto err;
+        } else {
+            zmq_tcp_server_host = config_value_object_get(server_data,
+                                                                        "host");
+            if ( zmq_tcp_server_host == NULL ) {
+                LOG_ERROR_0("Server \"host\" key missing");
+                c_json = NULL;
+                goto err;
+            }
+            if (zmq_tcp_server_host->type != CVT_STRING) {
+                LOG_ERROR_0("Server \"host\" value has to be of string type");
+                c_json = NULL;
+                goto err;
+            }
+            zmq_tcp_server_port = config_value_object_get(server_data,
+                                                                        "port");
+            if ( zmq_tcp_server_port == NULL ) {
+                LOG_ERROR_0("Server \"port\" key missing");
+                c_json = NULL;
+                goto err;
+            }
+            if (zmq_tcp_server_port->type != CVT_INTEGER) {
+                LOG_ERROR_0("Server \"port\" value has to be of integer type");
+                c_json = NULL;
+                goto err;
+            }
+        }
+
+        LOG_DEBUG("\nEnv Server Config is : \n Type : %s \n ServerName : %s \n Host : %s \n Port : %d \n", \
+                   type_value->body.string, \
+                   server_name->body.string, \
+                   zmq_tcp_server_host->body.string, \
+                   zmq_tcp_server_port->body.integer);
+    }
+
 
 err:
+    if (type_value != NULL) {
+        config_value_destroy(type_value);
+    }
+    if (server_data != NULL) {
+        config_value_destroy(server_data);
+    }
+    if (zmq_tcp_server_port != NULL) {
+        config_value_destroy(zmq_tcp_server_port);
+    }
+    if (zmq_tcp_server_host != NULL) {
+        config_value_destroy(zmq_tcp_server_host);
+    }
     if (temp_array_value != NULL) {
         config_value_destroy(temp_array_value);
     }
@@ -1915,6 +2151,10 @@ config_t* cfgmgr_get_msgbus_config_client(cfgmgr_interface_t* ctx) {
     config_value_t* client_public_key_cvt = NULL;
     config_value_t* sub_pri_key_cvt = NULL;
     config_value_t* client_topic_cvt = NULL;
+    config_value_t* type_value = NULL;
+    config_value_t* client_data = NULL;
+    config_value_t* zmq_tcp_client_port = NULL;
+    config_value_t* zmq_tcp_client_host = NULL;
 
     // Creating the final config object
     c_json = json_config_new_from_buffer("{}");
@@ -2099,6 +2339,7 @@ config_t* cfgmgr_get_msgbus_config_client(cfgmgr_interface_t* ctx) {
         }
 
         if (dev_mode != 0) {
+            LOG_DEBUG_0("Running in Prod Mode...");
 
             // Fetching Server AppName from config
             server_appname = config_value_object_get(cli_config, SERVER_APPNAME);
@@ -2186,6 +2427,8 @@ config_t* cfgmgr_get_msgbus_config_client(cfgmgr_interface_t* ctx) {
                 LOG_ERROR_0("Unable to set config value");
                 goto err;
             }
+        } else {
+            LOG_DEBUG_0("Running in Dev Mode...");
         }
         client_topic_cvt = config_value_new_object(client_topic->cfg, get_config_value, NULL);
         if (client_topic_cvt == NULL) {
@@ -2203,14 +2446,78 @@ config_t* cfgmgr_get_msgbus_config_client(cfgmgr_interface_t* ctx) {
         goto err;
     }
 
-    config_value = configt_to_char(c_json);
-    if (config_value == NULL) {
-        LOG_ERROR_0("config_value object initialization failed");
+    // Extracting and printing non-secret data from the config
+    type_value = c_json->get_config_value(c_json->cfg, "type");
+    if (type_value == NULL) {
+        LOG_ERROR_0("\"type\" key is missing in the config");
+        c_json = NULL;
+        goto err;
+    } else if (type_value->type != CVT_STRING) {
+        LOG_ERROR_0("\"type\" value has to be of string type");
+        c_json = NULL;
         goto err;
     }
-    LOG_DEBUG("Env client Config is : %s \n", config_value);
+    if (!strcmp(type_value->body.string, "zmq_ipc")) {
+        config_value = configt_to_char(c_json);
+        if (config_value == NULL) {
+            LOG_ERROR_0("config_value_cr initialization failed");
+            c_json = NULL;
+            goto err;
+        }
+        LOG_DEBUG("Env Client Config is : %s \n", config_value);
+    } else {
+        client_data = c_json->get_config_value(c_json->cfg, client_name->body.string);
+        if (client_data == NULL) {
+            LOG_ERROR("\"name\" key is missing in the config");
+            c_json = NULL;
+            goto err;
+        } else {
+            zmq_tcp_client_host = config_value_object_get(client_data,
+                                                                        "host");
+            if ( zmq_tcp_client_host == NULL ) {
+                LOG_ERROR_0("Client \"host\" key missing");
+                c_json = NULL;
+                goto err;
+            }
+            if (zmq_tcp_client_host->type != CVT_STRING) {
+                LOG_ERROR_0("Client \"host\" value has to be of string type");
+                c_json = NULL;
+                goto err;
+            }
+            zmq_tcp_client_port = config_value_object_get(client_data,
+                                                                        "port");
+            if ( zmq_tcp_client_port == NULL ) {
+                LOG_ERROR_0("Client \"port\" key missing");
+                c_json = NULL;
+                goto err;
+            }
+            if (zmq_tcp_client_port->type != CVT_INTEGER) {
+                LOG_ERROR_0("Client \"port\" value has to be of integer type");
+                c_json = NULL;
+                goto err;
+            }
+        }
+
+        LOG_DEBUG("\n Env Client Config is : \n Type : %s \n ClientName : %s \n Host : %s \n Port : %d \n", \
+                   type_value->body.string, \
+                   client_name->body.string, \
+                   zmq_tcp_client_host->body.string, \
+                   zmq_tcp_client_port->body.integer);
+    }
 
 err:
+    if (type_value != NULL) {
+        config_value_destroy(type_value);
+    }
+    if (client_data  != NULL) {
+        config_value_destroy(client_data);
+    }
+    if (zmq_tcp_client_port != NULL) {
+        config_value_destroy(zmq_tcp_client_port);
+    }
+    if (zmq_tcp_client_host != NULL) {
+        config_value_destroy(zmq_tcp_client_host);
+    }
     if (s_client_pri_key != NULL) {
         free(s_client_pri_key);
     }
