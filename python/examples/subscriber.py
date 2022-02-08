@@ -45,7 +45,8 @@ try:
     # get 0th subscriber interface object
     # sub_ctx = ctx.get_subscriber_by_index(0)
 
-    # get subscriber msgbus config for application to communicate over EII message bus
+    # get subscriber msgbus config for application to communicate
+    # over EII message bus
     config = sub_ctx.get_msgbus_config()
 
     # get the value of subscriber interface of key 'Name'

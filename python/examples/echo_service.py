@@ -48,7 +48,8 @@ try:
         print('[INFO] No server interfaces found')
     print('[INFO] Number of server interfaces are : {}'.format(ret))
 
-    # get server msgbus config for application to communicate over EII message bus
+    # get server msgbus config for application to communicate
+    # over EII message bus
     config = server_ctx.get_msgbus_config()
     print('[INFO] Obtained config is {}'.format(config))
     print('[INFO] Obtained endpoint is {}'.format(server_ctx.get_endpoint()))

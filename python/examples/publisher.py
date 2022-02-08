@@ -55,7 +55,8 @@ try:
     # get 0th publisher interface object
     # pub_ctx = ctx.get_publisher_by_index(0)
 
-    # get publisher msgbus config for application to communicate over EII message bus
+    # get publisher msgbus config for application to communicate
+    # over EII message bus
     config = pub_ctx.get_msgbus_config()
     print('[INFO] Obtained config is {}'.format(config))
 

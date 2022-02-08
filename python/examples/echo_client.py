@@ -44,7 +44,8 @@ try:
     # get 0th client interface object
     # client_ctx = ctx.get_client_by_index(0)
 
-    # get client msgbus config for application to communicate over EII message bus
+    # get client msgbus config for application to communicate
+    # over EII message bus
     config = client_ctx.get_msgbus_config()
     print('[INFO] Obtained config is {}'.format(config))
     print('[INFO] Obtained endpoint is {}'.format(client_ctx.get_endpoint()))

@@ -117,7 +117,8 @@ std::string ConfigMgr::getAppName() {
 PublisherCfg* ConfigMgr::getPublisherByIndex(int index) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_publisher_by_index API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_publisher_by_index(m_cfgmgr, index);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_publisher_by_index(m_cfgmgr,
+                                                                         index);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }
@@ -130,7 +131,8 @@ PublisherCfg* ConfigMgr::getPublisherByIndex(int index) {
 PublisherCfg* ConfigMgr::getPublisherByName(const char* name) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_publisher_by_name API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_publisher_by_name(m_cfgmgr, name);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_publisher_by_name(m_cfgmgr,
+                                                                        name);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }
@@ -143,7 +145,8 @@ PublisherCfg* ConfigMgr::getPublisherByName(const char* name) {
 SubscriberCfg* ConfigMgr::getSubscriberByIndex(int index) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_subscriber_by_index API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_subscriber_by_index(m_cfgmgr, index);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_subscriber_by_index(m_cfgmgr,
+                                                                          index);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }
@@ -156,7 +159,8 @@ SubscriberCfg* ConfigMgr::getSubscriberByIndex(int index) {
 SubscriberCfg* ConfigMgr::getSubscriberByName(const char* name) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_subscriber_by_name API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_subscriber_by_name(m_cfgmgr, name);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_subscriber_by_name(m_cfgmgr,
+                                                                         name);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }
@@ -169,7 +173,8 @@ SubscriberCfg* ConfigMgr::getSubscriberByName(const char* name) {
 ServerCfg* ConfigMgr::getServerByIndex(int index) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_server_by_index API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_server_by_index(m_cfgmgr, index);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_server_by_index(m_cfgmgr,
+                                                                      index);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }
@@ -182,7 +187,8 @@ ServerCfg* ConfigMgr::getServerByIndex(int index) {
 ServerCfg* ConfigMgr::getServerByName(const char* name) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_server_by_name API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_server_by_name(m_cfgmgr, name);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_server_by_name(m_cfgmgr,
+                                                                     name);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }
@@ -195,7 +201,8 @@ ServerCfg* ConfigMgr::getServerByName(const char* name) {
 ClientCfg* ConfigMgr::getClientByIndex(int index) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_client_by_name API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_client_by_index(m_cfgmgr, index);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_client_by_index(m_cfgmgr,
+                                                                      index);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }
@@ -208,7 +215,8 @@ ClientCfg* ConfigMgr::getClientByIndex(int index) {
 ClientCfg* ConfigMgr::getClientByName(const char* name) {
     LOG_DEBUG("In %s method", __func__);
     // Calling the base C get_client_by_name API
-    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_client_by_name(m_cfgmgr, name);
+    cfgmgr_interface_t* cfgmgr_interface = cfgmgr_get_client_by_name(m_cfgmgr,
+                                                                     name);
     if (cfgmgr_interface == NULL) {
         throw "cfgmgr_interface initialization failed";
     }

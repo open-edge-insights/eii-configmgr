@@ -22,15 +22,17 @@ import os
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 
-eii_version = os.getenv("EII_VERSION","2.6")
+eii_version = os.getenv("EII_VERSION", "2.6")
 cmake_install_prefix = os.getenv("CMAKE_INSTALL_PREFIX", "/opt/intel/eii")
 
 extensions = [
     Extension("*", ["./cfgmgr/*.pyx"],
-    include_dirs=[cmake_install_prefix + '/include','${PROJECT_SOURCE_DIR}/include'],
-    library_dirs=[cmake_install_prefix + '/lib', '${PROJECT_BINARY_DIR}/'],
-    libraries=['eiiconfigmanager'])
-]
+              include_dirs=[cmake_install_prefix + '/include',
+                            '${PROJECT_SOURCE_DIR}/include'],
+              library_dirs=[cmake_install_prefix + '/lib',
+                            '${PROJECT_BINARY_DIR}/'],
+              libraries=['eiiconfigmanager'])
+             ]
 
 compiler_directives = {"language_level": 3, "embedsignature": True}
 extensions = cythonize(extensions, compiler_directives=compiler_directives)
