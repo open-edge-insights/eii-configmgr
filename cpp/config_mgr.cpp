@@ -232,7 +232,4 @@ ConfigMgr::~ConfigMgr() {
         LOG_DEBUG_0("ConfigMgr Destructor: Deleting m_app_cfg_handler class...");
         delete m_app_cfg_handler;
     }
-    if (m_cfgmgr) {
-        cfgmgr_destroy(m_cfgmgr);
-    }
 }
