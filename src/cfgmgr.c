@@ -1183,6 +1183,7 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
     char** host_port = NULL;
     char* host = NULL;
     char* port = NULL;
+    int topicret;
     config_value_t* sub_config = ctx->interface;
     char* app_name = ctx->cfg_mgr->app_name;
     bool dev_mode = false;
@@ -1391,7 +1392,6 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
         int64_t i_port = atoi(port);
 
         int ret;
-        int topicret;
         // comparing the first topic in the array of subscribers topic with "*"
         topic = config_value_array_get(topic_array, 0);
         if (topic == NULL || topic->body.string == NULL){
@@ -1510,7 +1510,12 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
         }
         LOG_DEBUG("Env Subscriber Config is : %s \n", config_value_cr);
     } else {
-        topic_data = c_json->get_config_value(c_json->cfg, topic->body.string);
+        // Checking if topic is "*", if yes, then in the config we need to check with empty string
+        if ( topicret == 0 ) {
+            topic_data = c_json->get_config_value(c_json->cfg, "");
+        } else {
+            topic_data = c_json->get_config_value(c_json->cfg, topic->body.string);
+        }
         if (topic_data == NULL) {
             LOG_ERROR("\"Topic\" key is missing in the config");
             c_json = NULL;
