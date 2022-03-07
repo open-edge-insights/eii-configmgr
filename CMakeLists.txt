@@ -208,6 +208,7 @@ set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/open-edge-insights/eii-core")
 
 # Debian package dependencies
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Intel Corporation")
+## TODO: Come up with right way for adding dependency versions
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "eii-utils (>= 2.6.0), eii-messagebus (>=2.6.0)")
 
 # RPM package specific settings
