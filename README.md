@@ -989,19 +989,19 @@ Before executing any of the test files, please run below command from `build/tes
 ./kvstore_client-tests
 ```
 
-## Creation of grpc .deb file (Optional)
+## Creation of grpc .zip file (Optional)
 
-**Note**: This is an optional as we have already created .deb file in the repo.
-If user wants to create .deb file freshly, then one has to follow this step.
+**Note**: This is an optional as we have already created .zip file in the repo.
+If user wants to create .zip file freshly, then one has to follow this step.
 
-Navigate to `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr` and run the `grpc_deb.sh`
+Navigate to `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/grpc-package` and run the `grpc_zip.sh`
 
 ```sh
-sudo ./grpc_deb.sh
+sudo ./grpc_zip.sh
 ```
 
-By executing the above script, `grpc-1.29.0-Linux.deb` will be created in
-`[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr`.
+By executing the above script, grpc zip package will be created in
+`[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/grpc-package`.
 
 ## Generation of python .whl file (Optional)
 
@@ -1018,4 +1018,4 @@ If user wants to create .whl file freshly, then one has to follow below steps.
     ```sh
     python3 setup_packaging.py sdist bdist_wheel --plat-name=manylinux2014_x86_64
     ```
-3. ConfigMgr .whl package will be created in the folder `dist` as `eii_configmgr-2.6-cp38-cp38-manylinux2014_x86_64.whl`
+3. ConfigMgr .whl package will be created in the folder `dist`.
