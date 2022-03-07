@@ -208,7 +208,7 @@ set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/open-edge-insights/eii-core")
 
 # Debian package dependencies
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Intel Corporation")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcjson1 (>= 1.7.10), eii-utils (>= 2.6.0), eii-messagebus (>=2.6.0), zlib1g (>=1.2.11)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "eii-utils (>= 2.6.0), eii-messagebus (>=2.6.0)")
 
 # RPM package specific settings
 set(CPACK_RPM_PACKAGE_REQUIRES "cjson >= 1.7.14, eii-utils >= 2.6.0, eii-messagebus >= 2.6.0, zlib >= 1.2.11")
