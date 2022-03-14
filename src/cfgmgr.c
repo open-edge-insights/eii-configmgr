@@ -1183,7 +1183,7 @@ config_t* cfgmgr_get_msgbus_config_sub(cfgmgr_interface_t* ctx) {
     char** host_port = NULL;
     char* host = NULL;
     char* port = NULL;
-    int topicret;
+    int topicret = 0;
     config_value_t* sub_config = ctx->interface;
     char* app_name = ctx->cfg_mgr->app_name;
     bool dev_mode = false;
@@ -1653,6 +1653,7 @@ config_t* cfgmgr_get_msgbus_config_server(cfgmgr_interface_t* ctx) {
     c_json = json_config_new_from_buffer("{}");
     if (c_json == NULL) {
         LOG_ERROR_0("Error creating c_json object");
+        goto err;
     }
 
     // Fetching Name from name
