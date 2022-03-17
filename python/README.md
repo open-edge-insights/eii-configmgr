@@ -1,1 +1,3 @@
-Python binding for the EII ConfigManager.
+# Content
+
+Python binding for the ConfigManager.
