@@ -52,7 +52,10 @@ set(EII_COMMON_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
 set(CMAKE_CXX_STANDARD 11)
 
 # Set CFLAGS
-set(CMAKE_C_FLAGS "-fPIE -fPIC -O2 -Wall -pedantic -fstack-protector-strong -D_FORTIFY_SOURCE=2")
+set(CMAKE_C_FLAGS "-fPIE -fPIC -O2 -Wall -pedantic -fstack-protector-strong -fno-strict-overflow -fno-delete-null-pointer-checks -fwrapv -D_FORTIFY_SOURCE=2")
+
+# Set CXXFLAGS
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 
 # Set LDFLAGS
 set(CMAKE_SHARED_LINKER_FLAGS "-z noexecstack -z relro -z now")
