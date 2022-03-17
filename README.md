@@ -1,26 +1,26 @@
 # ConfigMgr
 
-ConfigMgr (Config manager) provides CPP/Python/Golang APIs to:
+ConfigMgr or Config manager provides CPP, Python, and Golang APIs to:
 
 - fetch an applications configs values from the KV store.
-- fetch an applications interface values from KV store for pub, sub, server and client.
-- watch on application's config changes.
-- generate EII MessageBus config.
-- read and set /GlobalEnv variables.
-- fetch env variables: appname, dev_mode
+- fetch an applications interface values from the KV store for pub, sub, server, and client.
+- monitor application's config changes.
+- generate MessageBus config.
+- read and set the `/GlobalEnv` variables.
+- fetch the env variables: appname, dev_mode
 
-All these data are stored into the kv store of EII during the provisioning phase and can be changed   dynamically by the admin.
+All the ConfigMgr operations related data is stored in the KV store of OEI during the provisioning phase. An admin can dynamically change these data.
 
-## Installation
+>**Note:** In this document, you will find labels of 'Edge Insights for Industrial (EII)' for filenames, paths, code snippets, and so on. Consider the references of EII as Open Edge Insights (OEI). This is due to the product name change of EII as OEI.
 
-The EII Config Manager library can be installed in two different ways.
+## ConfigMgr Installation
 
-1. Through published Debian, Fedora, or Alpine APK packages
-2. Installing form source
+You can install the OEI Config Manager library in any of the following ways:
 
-If you are installing from one of the packages, select the package you wish to
-install from the releases assets, and then run one of the following depending
-on the OS you are installing on:
+- Through published Debian, Fedora, or Alpine APK packages
+- Installing from source
+
+If you are installing from one of the packages then from the releases assets, select the package to install. Based on the OS that on which you are installing, run the following:
 
 ```sh
 # Debian
@@ -35,56 +35,43 @@ sudo rpm -i <rpm package>
 sudo apk add --allow-untrusted <apk package>
 ```
 
-In the above commands, installing the cJSON and ZeroMQ dependencies
-is required, however, in general, installation of the dev module is not required
-(i.e. the OS packages which include all of the headers for the libraries). If
-you are compiling an application that is linking to this library, then it is
-recommended that you install the dev versions of the libraries. For Ubuntu this
-would mean installing `libcjson-dev libzmq3-dev zlib1g-dev`. For Fedora the
-packages would be `cjson-devel zeromq-devel zlib-devel`. In Alpine, the packages
-would be `cjson-dev zeromq-dev zlib-dev`.
+In the above commands, installing the cJSON and ZeroMQ dependencies is required, however, in general, installation of the dev module is not required (i.e. the OS packages which include all of the headers for the libraries). If you are compiling an application that is linking to this library, then it is recommended that you install the `dev` versions of the libraries.
 
-If you want to compile the EII Config Manager from source, follow the
+- For Ubuntu, install `libcjson-dev libzmq3-dev zlib1g-dev`
+- For Fedora, install `cjson-devel zeromq-devel zlib-devel`
+- For Alpine, install `cjson-dev zeromq-dev zlib-dev`
+
+If you want to compile the Config Manager from source, follow the
 intructions below.
 
-The EIIConfigMgr depends on CMake version 3.11+. For Ubuntu 18.04 this is not
-the default version installed via `apt-get`. To install the correct version
-of CMake and other ConfigMgr dependencies, please follow [eii_libs_installer README](../../README.md)
+The ConfigMgr depends on CMake version 3.11+. For Ubuntu 18.04 this is not the default version installed via `apt-get`. To install the correct version
+of CMake and other ConfigMgr dependencies, refer to the [eii_libs_installer README](../../README.md)
 
-CMAKE_INSTALL_PREFIX needs to be set for the installation:
+To set `CMAKE_INSTALL_PREFIX` for the installation, run the following command:
 
 ```sh
     export CMAKE_INSTALL_PREFIX="/opt/intel/eii"
 ```
 
-ConfigMgr installs to `/opt/intel/eii/lib/`. On some platforms this is not included in the `LD_LIBRARY_PATH` by default. As a result, you must add this directory to your `LD_LIBRARY_PATH`,
-otherwise you will encounter issues using the ConfigMgr. This can
-be accomplished with the following `export`:
+ConfigMgr installs to `/opt/intel/eii/lib/`. On some platforms, this is not included in the `LD_LIBRARY_PATH` by default. As a result, you must add this directory to your `LD_LIBRARY_PATH`, otherwise you will encounter issues using the ConfigMgr. This can be accomplished with the following `export`:
 
 ```sh
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/eii/lib/
 ```
 
-> **NOTE:** You can also specify a different library prefix to CMake through
-> the `CMAKE_INSTALL_PREFIX` flag. If different installation path is given via `CMAKE_INSTALL_PREFIX`, then `$LD_LIBRARY_PATH` should be appended by $CMAKE_INSTALL_PREFIX/lib.
+> **Note:** You can also specify a different library prefix to CMake through the `CMAKE_INSTALL_PREFIX` flag. If different installation path is given via `CMAKE_INSTALL_PREFIX`, then `$LD_LIBRARY_PATH` should be appended by $CMAKE_INSTALL_PREFIX/lib.
 
-To install the remaining dependencies for the message bus execute the following
-command:
+To install the remaining dependencies for the message bus execute the following command:
 
-**Note**: It is highly recommended that you use a python virtual environment to
-install the python packages, so that the system python installation doesn't
-get altered. Details on setting up and using python virtual environment can
-be found here: <https://www.geeksforgeeks.org/python-virtual-environment/>
+> **Note**: It is highly recommended that you use a python virtual environment to install the python packages, so that the system python installation doesn't get altered. For details on setting up and using Python virtual environment, refer to [Python virtual environment](https://www.geeksforgeeks.org/python-virtual-environment/>).
 
 ```sh
 sudo apt install libcjson-dev libzmq5 zlib1g-dev
 ```
 
-> **NOTE:** For Fedora, the packages should be `cjson-devel zeromq-devel zlib-devel` and for
-> Alpine it is `cjson-dev zeromq-dev zlib-dev`.
+> **Note:** For Fedora, the packages is `cjson-devel zeromq-devel zlib-devel`. For Alpine, the package is `cjson-dev zeromq-dev zlib-dev`.
 
-If you wish to compile the Python binding as well, then you must also install
-the Python requirements. To do this, execute the following `pip` command:
+If you wish to compile the Python binding as well, then you must also install the Python requirements. To do this, execute the following `pip` command:
 
 ```sh
 pip3 install --user -r ./python/requirements.txt
@@ -97,21 +84,19 @@ the system. To do this, use the `SYSTEM_GRPC` flag when running the `cmake`
 command. Below is an example of what this would look like:
 
 ```sh
-$ cmake -DSYSTEM_GRPC=ON ..
+ cmake -DSYSTEM_GRPC=ON ..
 ```
 
-Note that the ConfigMgr library depends on a specific gRPC version, 1.29.0. A
-debian package is provided for this in the grpc-package directory. To install
+>**Note:** The ConfigMgr library depends on a specific gRPC version, 1.29.0. A debian package is provided for this in the grpc-package directory. To install
 this in Ubuntu run the following command:
 
 ```sh
-$ sudo dpkg -i grpc-package/grpc-1.29.0-Linux.deb
+sudo dpkg -i grpc-package/grpc-1.29.0-Linux.deb
 ```
 
 ## Compilation
 
-The EII Config Manager utilizes CMake as the build tool for compiling the library.
-The simplest sequence of commands for building the library are shown below.
+The Config Manager utilizes CMake as the build tool for compiling the library. The simplest sequence of commands for building the library are shown below.
 
 ```sh
 mkdir build
@@ -120,46 +105,39 @@ cmake ..
 make
 ```
 
-This will compile only the C library for the EII ConfigMgr. If you wish to
-build with the Python binding, then specify the `WITH_PYTHON` flag when
-executing the `cmake` command (as shown below).
+This will compile only the C library for the ConfigMgr. To build with the Python binding, specify the `WITH_PYTHON` flag, when
+executing the `cmake` command. Refer to the following:
 
 ```sh
 cmake -DWITH_PYTHON=ON ..
 ```
 
-If you wish to include installation of the Go binding with the installation of
-the EII library, then specify the `WITH_GO` flag when executing the `cmake`
-command (as shown below).
+If you wish to include installation of the Go binding with the installation of the OEI library, then specify the `WITH_GO` flag when executing the `cmake`
+command.
 
 ```sh
 cmake -DWITH_GO=ON ..
 ```
 
-Note that this only copies the Go binding library to your system's `$GOPATH`.
-If you do not have your `$GOPATH` specified in your system's environmental
+>**Note:** This only copies the Go binding library to your system's `$GOPATH`. If you do not have your `$GOPATH` specified in your system's environmental
 variables then an error will occur while executing the `cmake` command.
 
-In addition to the `WITH_PYTHON` and `WITH_GO` flags, the EII ConfigMgr
-CMake files add flags for building the C examples and the unit tests associated
-with the library. The table below specifies all of the available flags that can
-be given to CMake for building the EII ConfigMgr.
+In addition to the `WITH_PYTHON` and `WITH_GO` flags, the ConfigMgr CMake files add flags for building the C examples and the unit tests associated
+with the library. The following table specifies all of the available flags that can be given to CMake for building the ConfigMgr.
 
 |       Flag      | Default |                                       Description                                    |
 | :-------------: | :-----: | ------------------------------------------------------------------------------------ |
-| `WITH_TESTS`    | `OFF`   | If set to `ON`, builds the C unit tests with the EII ConfigMgr compilation         |
+| `WITH_TESTS`    | `OFF`   | If set to `ON`, builds the C unit tests with the ConfigMgr compilation         |
 | `WITH_EXAMPLES` | `OFF`   | If set to `ON`, then CMake will compile the C examples in addition to the library    |
 | `WITH_DOCS`     | `OFF`   | If set to `ON`, then CMake will add a `docs` build target to generate documentation  |
 
-> **NOTE:** These flags are in addition to any and all flags that are available
-> for the `cmake` command. See the CMake documentation for additional flags.
+> **Note:**
+>
+> - These flags are in addition to any and all flags that are available for the `cmake` command. See the CMake documentation for additional flags.
+> - See the [Generating Documentation](#generating-documentation) section.
 
-> **NOTE:** See the [Generating Documentation](#generating-documentation)
-> section.
-
-If you wish to compile the EII ConfigMgr in debug mode, then you can set the
-the `CMAKE_BUILD_TYPE` to `Debug` when executing the `cmake` command (as shown
-below).
+If you wish to compile the ConfigMgr in debug mode, then you can set the
+the `CMAKE_BUILD_TYPE` to `Debug` when executing the `cmake` command. Refer to the following:
 
 ```sh
 cmake -DCMAKE_BUILD_TYPE=Debug ..
@@ -167,57 +145,41 @@ cmake -DCMAKE_BUILD_TYPE=Debug ..
 
 ### Generating Documentation
 
-Generating the documentation has several dependencies which are not installed
-by the `install.sh` script. You must install the following packages in order
-to generate the documentation:
+Generating the documentation has several dependencies which are not installed by the `install.sh` script. You must install the following packages to generate the documentation:
 
 ```sh
 sudo apt install doxygen texlive-full
 ```
 
-**WARNING:** This install way take a very long time. It will install > `4GB` of
-packages.
+**Warning:** This install way take a very long time. It will install more than `4GB` of packages.
 
-If you are building the Python binding (by using the `WITH_PYTHON` flag), then
-you must also install Sphinx and an extension for Sphinx. This can be
-accomplished with the following commands:
+If you are building the Python binding by using the `WITH_PYTHON` flag, then you must also install Sphinx and an extension for Sphinx. This can be accomplished with the following commands:
 
 ```sh
 sudo apt install python3-sphinx
 sudo -H -E pip3 install m2r
 ```
 
-> **NOTE:** The commands above assume you already have Python 3.6 and pip
+> **Note:** The commands above assume you already have Python 3.6 and pip
 > installed on your system.
 
 **Go documentation generation is WIP.**
 
-Once you have completed these steps, the documentation can be generated by
-running the following make command:
+Once you have completed these steps, the documentation can be generated by running the following make command:
 
 ```sh
 make docs && make docs
 ```
 
-Note that currently you need to run `make docs` twice so that the table of
-contents is generated correctly for each of the documents. This will be fixed
-in the future.
+>**Note:** Currently you need to run `make docs` twice so that the table of contents is generated correctly for each of the documents. This will be fixed in the future.
 
-The PDF documents will be in the `docs/pdfs/` directory within your `build`
-directory. There will be other log files and output files associated with the
-building of the PDFs. Any file that does not end in `.pdf` can be ignored.
-
+The PDF documents will be in the `docs/pdfs/` directory within your `build` directory. There will be other log files and output files associated with the building of the PDFs. Any file that does not end in `.pdf` can be ignored.
 
 ## Packaging
 
-> **NOTE:** If the build is done using the system installed gRPC, then packaging
-> cannot be done . This is due to the various linking issues that can occur in
-> that scenario.
+> **Note:** If the build is done using the system installed gRPC, then packaging cannot be done . This is due to the various linking issues that can occur in that scenario.
 
-This library supports being packaged as a Debian, RPM, or Alpine APK packages.
-This is all accomplished via CMake. By default, packaging is disabled. To
-enable packaging, add the `-DPACKAGING=ON` flag to your CMake command (see
-Compilation section above). This command will look something like:
+This library supports being packaged as a Debian, RPM, or Alpine APK packages. This is all accomplished via CMake. By default, packaging is disabled. To enable packaging, add the `-DPACKAGING=ON` flag to your CMake command (see Compilation section). This command will look something like:
 
 ```sh
 cmake -DPACKAGING=ON ..
@@ -262,13 +224,13 @@ make package-apk
 
 **IMPORTANT:**
 
-The EII Config Manager depends on the EII Utils and EII Message Bus libraries.
-In order to compile the Alpine APK package for the EII Config Manager it must
-have the APK packages for the EII Utils and EII Message Bus modules.
+The Config Manager depends on the OEI Utils and Message Bus libraries.
+In order to compile the Alpine APK package for the Config Manager it must
+have the APK packages for the OEI Utils and Message Bus modules.
 
 To provide this, you must first build or download the Alpine APK package for the
-EII Utils library (see it's repo [here](https://github.com/open-edge-insights/eii-c-utils)
-to obtain the library) and also for the EII Message Bus (see it's repo
+OEI Utils library (see it's repo [here](https://github.com/open-edge-insights/eii-c-utils)
+to obtain the library) and also for the Message Bus (see it's repo
 [here](https://github.com/open-edge-insights/eii-messagebus) to obtain the library).
 
 Once you have the APKs, create an, "apks" directory at the top level of this
@@ -278,7 +240,7 @@ repository.
 mkdir apks/
 ```
 
-Next, place the EII Utils and EII Message Bus APK packages into the, "apks",
+Next, place the OEI Utils and Message Bus APK packages into the, "apks",
 directory. Then execute the `make package-apk` command. If this is not done,
 then the build will fail.
 
@@ -293,7 +255,7 @@ By default, Alpine 3.14 is used to build the package. However, this version
 can be changed by setting the `APKBUILD_ALPINE_VERSION` CMake flag to the
 version of Alpine you wish to use (ex. `-DAPKBUILD_ALPINE_VERSION=3.12`).
 
-## Install ConfigMgr with Python bindings, Go bindings, Examples, Test suits and Debug Build
+## Install ConfigMgr with Python bindings, Go bindings, Examples, Test suits, and Debug Build
 
 ```sh
 rm -rf build
@@ -306,7 +268,7 @@ sudo make install
 
 `WITH_PYTHON=ON`, `WITH_GO=ON`, `WITH_EXAMPLES=ON`, `WITH_TESTS=ON` and `CMAKE_BUILD_TYPE=Debug` to compile ConfigMgr with Python bindings, Go bindings, Examples, Unit Tests and Debug mode respectively.
 
-# Interfaces
+## Interfaces
 
 ConfigMgr parses the data from the kv store (eg: etcd) and the application environment variables for its functionality.
 It supports Publisher, Subscriber, Server and Client interfaces. Below are the examples for providing
@@ -314,7 +276,7 @@ different interfaces and different usecases.
 
 Please refer [different ways of giving endpoints](###**Note**-"endpoint"-can-be-given-in-different-ways:)
 
-### **Publisher Interface**
+## Publisher Interface
 
 ```javascript
 {
@@ -354,7 +316,7 @@ Please refer [different ways of giving endpoints](###**Note**-"endpoint"-can-be-
 | `Topics`            | `array`   | Yes                  | Specifying the topics on which data will be published on. Multiple elements in this array can denote multiple topics published on the same endpoint   |
 | `AllowedClients`    | `array`   | Yes                  | Specifying who can subscribe to the the topic on which data is published. If AllowedClients is "*", then all the provisioned services can receive the data published.                  |
 
-### **Subscriber Interface**
+### Subscriber Interface
 
 ```javascript
 {
@@ -567,7 +529,7 @@ If publisher and subscriber wants to communicate via broker(ZmqBroker), i.e., if
 
 ## zmq_tcp Protocol usecase
 
-### ZmqBroker
+### ZmqBroker (use case)
 
 ```javascript
 {
@@ -682,7 +644,7 @@ If publisher and subscriber wants to communicate via broker(ZmqBroker), i.e., if
 
 ```
 
-### Subscriber
+### Subscriber Details
 
 ```javascript
 {
@@ -708,7 +670,7 @@ If publisher and subscriber wants to communicate via broker(ZmqBroker), i.e., if
 }
 ```
 
-### Publisher
+### Publisher Details
 
 ```javascript
 {
@@ -752,13 +714,13 @@ If publisher and subscriber wants to communicate via broker(ZmqBroker), i.e., if
 
   - Specifying just socket directory
 
-        ```javascript
-        "Endpoint":"/EII/sockets"
-        ```
+    ```javascript
+    "Endpoint":"/EII/sockets"
+    ```
 
   - Specifying socket directory and socket file
 
-        ```javascript
+    ```javascript
         "Endpoint":{
             "SocketDir" : "/EII/sockets",
             "SocketFile": "socketfile"
@@ -767,11 +729,11 @@ If publisher and subscriber wants to communicate via broker(ZmqBroker), i.e., if
         or
 
         "Endpoint":"/EII/sockets, socketfile"
-        ```
+    ```
 
 ## Running Examples
 
-The ConfigMgr library also supports Cpp APIs and Python & Go bindings. These APIs/bindings can be used in Cpp and Python/Go services in the EII stack to fetch required config/interfaces/msgbus config.
+The ConfigMgr library also supports Cpp APIs and Python & Go bindings. These APIs/bindings can be used in Cpp and Python/Go services in the OEI stack to fetch required config/interfaces/msgbus config.
 
 Examples will only be compiled if the `WITH_EXAMPLES=ON` option is specified while running CMake.
 Please refer [Examples installation](###-install-configMgr-with-examples,-test-suits-and-debug-build-enabled.)
@@ -922,45 +884,44 @@ There are currently 5 Go examples:
 4. `echo_client.go`
 5. `app_config.go`
 
-All of the go examples are in `go/examples/` directory. To run
-them, execute the following command:
+All of the go examples are in the `go/examples/` directory. To run them, execute the following command:
 
-Before executing any of the examples, please run below command from `go/ConfigMgr/examples/`
+>**Note:** Before executing any of the examples, run the following command from `go/ConfigMgr/examples/`
 
 ```sh
  cd ../../../examples/ && source ./env.sh && cd -
  source ./go_env.sh
 ```
 
-Publisher example.
+The Publisher example is as follows:
 
 ```sh
 go build publisher.go
 ./publisher
 ```
 
-Subscriber example.
+The Subscriber example is as follows:
 
 ```sh
 go build subscriber.go
 ./subscriber
 ```
 
-Server example.
+The Server example is as follows:
 
 ```sh
 go build echo_service.go
 ./echo_service
 ```
 
-Client example.
+The Client example is as follows:
 
 ```sh
 go build echo_client.go
 ./echo_client
 ```
 
-app_config used to get the values from application's config
+The app_config used to get the values from application's config is as follows:
 
 ```sh
 go build app_config.go
@@ -969,14 +930,12 @@ go build app_config.go
 
 ## Running Unit Tests
 
-> **NOTE:**
+> **Note:**
+>
+> - The unit tests will only be compiled if the `WITH_TESTS=ON` option is specified when running CMake. Refer [Unit Test installation](###-install-configMgr-with-examples,-test-suits-and-debug-build-enabled.) installation.
+> - Provisioning should be done to start etcd server in the Dev or the Prod mode and to generate application specific certificates (only in prod mode).
 
-- The unit tests will only be compiled if the `WITH_TESTS=ON` option is specified when running CMake.
-Please refer [Unit Test installation](###-install-configMgr-with-examples,-test-suits-and-debug-build-enabled.) installation.
-
-- Provisioning should be done to start etcd server in dev/prod mode and to generate application specific certificates(only in prod mode).
-
-Before executing any of the test files, please run below command from `build/tests/`
+Before executing any of the test files, run the followins command from `build/tests/`:
 
 ```sh
  cd ../../examples/ && source ./env.sh && cd -
@@ -984,14 +943,14 @@ Before executing any of the test files, please run below command from `build/tes
 
 - To run ConfigMgr unit tests
 
-```
+```sh
 ./config_manager_unit_tests
 ./kvstore_client-tests
 ```
 
 ## Creation of grpc .zip file (Optional)
 
-**Note**: This is an optional as we have already created .zip file in the repo.
+>**Note:** This is an optional as we have already created .zip file in the repo.
 If user wants to create .zip file freshly, then one has to follow this step.
 
 Navigate to `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/grpc-package` and run the `grpc_zip.sh`
@@ -1000,13 +959,11 @@ Navigate to `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/grpc-package` and run
 sudo ./grpc_zip.sh
 ```
 
-By executing the above script, grpc zip package will be created in
-`[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/grpc-package`.
+By executing the above script, grpc zip package will be created in `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/grpc-package`.
 
 ## Generation of python .whl file (Optional)
 
-**Note**: This is an optional as we have already hosted .whl file.
-If user wants to create .whl file freshly, then one has to follow below steps.
+**Note:** This is an optional as we have already hosted .whl file. If user wants to create .whl file freshly, then complete the following steps.
 
 1. Installation of `wheel`
 
@@ -1014,8 +971,10 @@ If user wants to create .whl file freshly, then one has to follow below steps.
     pip3 install –upgrade setuptools wheel
     ```
 
-2. Navigate to `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/python` and execute the below command
+2. Navigate to `[WORKDIR]/IEdgeInsights/common/libs/ConfigMgr/python` and run the following command:
+
     ```sh
     python3 setup_packaging.py sdist bdist_wheel --plat-name=manylinux2014_x86_64
     ```
-3. ConfigMgr .whl package will be created in the folder `dist`.
+
+3. ConfigMgr .whl package will be created in the `dist` folder.
